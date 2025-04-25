@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
 import Image from 'next/image';
+import icon from "@/public/images/icon.png";
 
 export default function Navbar() {
   
@@ -51,7 +52,16 @@ export default function Navbar() {
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex flex-shrink-0 items-center">
-              <span className="text-gray-900 dark:text-white text-xl font-bold">3D AI Avatars</span>
+              <span className="text-gray-900 dark:text-white text-xl font-bold flex items-center">
+                <Image
+                  className="h-8 w-8 rounded-full mr-2"
+                  src={icon}
+                  alt="Logo"
+                  width={32}
+                  height={32}
+                />
+                3D AI Avatars
+              </span>
             </div>
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">

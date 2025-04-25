@@ -3,7 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { Environment, OrbitControls } from "@react-three/drei";
 import { Avatar } from "./Avatar";
 
-export default function ThreeDAgent({agentData,lipSyncData,isSpeaking,isThinking,audio}){
+export default function ThreeDAgent({agentData,lipSyncData,isSpeaking,isThinking,audio,useLipSync}){
 return(
 <Canvas 
     shadows 
@@ -24,6 +24,7 @@ return(
         isSpeaking={isSpeaking}
         isThinking={isThinking}
         audio={audio}
+        useLipSync={useLipSync}
     />
     
     <Environment 

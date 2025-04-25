@@ -30,7 +30,7 @@ export const doctor = {
 
 export const software_engineer = {
   id: 'software_engineer',
-  name: 'Jayendra Bharti',
+  name: 'Sundar Pichai',
   role: 'Software Engineer',
   gender: 'male',
   description: 'A software Engineer with experience in FAANG companies.',

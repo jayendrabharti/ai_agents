@@ -9,8 +9,8 @@ export function ChatHeader({agentData,clearChat,messages,clearing,deleteDisabled
       </div>
     
       <div>
-        <h1 className="text-xl text-white font-semibold">{agentData.name} ({agentData.role})</h1>
-        <p className="text-sm text-gray-400">Online</p>
+        <h1 className="text-xl text-white font-bold">{agentData.name}</h1>
+        <span className='text-green-500'>{agentData.role}</span>
       </div>
       
       <div className='ml-auto'>

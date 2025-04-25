@@ -4,7 +4,7 @@ import { MessageBubble } from '@/components/MessageBubble';
 import { MessageInput } from '@/components/MessageInput';
 import { ChatHeader } from '@/components/ChatHeader';
 import { useChat } from '@/hooks/useChat';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, use } from 'react';
 import { extractTextFromMarkdown } from "@/utils/common";
 import { ClearChat, GetChat, SendAndGetMessage } from '@/actions/chat';
 import agents from '@/agents/agents';
@@ -13,6 +13,7 @@ import { LoaderCircle } from 'lucide-react';
 import { playTextToSpeech } from '@/utils/PlayAudio';
 import ThreeDAgent from './ThreeDAgent';
 import VoiceRecognition from "@/components/VoiceRecognition";
+import useLocalState from '@/hooks/useLocalState';
 
 
 export default function Agent(){
@@ -27,6 +28,7 @@ export default function Agent(){
   const [audio,setAudio] = useState(null);
   const scrollDivRef = useRef(null);
   const [clearing, setClearing] = useState(false);
+  const [useLipSync, setUseLipSync] = useLocalState("useLipSync",false);
 
   const handleSendMessage = async(content) => {
         
@@ -35,7 +37,7 @@ export default function Agent(){
     const response = JSON.parse(await SendAndGetMessage(agentName,content));
     const aiMessage = response.message;
     const text = extractTextFromMarkdown(aiMessage);
-    const { sound, lipSyncData: lsd } = await playTextToSpeech(text);
+    const { sound, lipSyncData: lsd } = await playTextToSpeech(text,useLipSync);
     setLipSyncData(JSON.parse(lsd));
     setAudio(sound);
     sound.on('play', ()=>{
@@ -105,6 +107,7 @@ export default function Agent(){
     get();
   },[])
 
+
   return (
   <div className='grid grid-cols-[2fr_1fr] h-full max-h-full overflow-hidden bg-cover bg-center'
     style={{backgroundImage: `url(${agentData.backgroundImage})`}}
@@ -117,8 +120,22 @@ export default function Agent(){
           isSpeaking={isSpeaking}
           isThinking={isThinking}
           audio={audio}
+          useLipSync={useLipSync}
         />
         {/* <VoiceRecognition onSubmit={handleSendMessage} /> */}
+        <div className='absolute top-0 left-0 z-10 flex flex-row items-center justify-center bg-slate-500 rounded-br-2xl p-2'>
+          <span className='font-bold'>Lip sync</span>
+          <label className="relative inline-flex items-center cursor-pointer scale-75">
+            <input 
+              type="checkbox" 
+              checked={useLipSync}
+              onChange={(e) => setUseLipSync(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="group peer ring-0 bg-rose-400  rounded-full outline-none duration-300 after:duration-300 w-24 h-12  shadow-md peer-checked:bg-emerald-500  peer-focus:outline-none  after:content-['✖️']  after:rounded-full after:absolute after:bg-gray-50 after:outline-none after:h-10 after:w-10 after:top-1 after:left-1 after:-rotate-180 after:flex after:justify-center after:items-center peer-checked:after:translate-x-12 peer-checked:after:content-['✔️'] peer-hover:after:scale-95 peer-checked:after:rotate-0">
+            </div>
+          </label>
+        </div>
     </div>
     
     <div

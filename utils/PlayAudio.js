@@ -3,10 +3,10 @@
 import { Howl } from "howler";
 import { playTextToSpeechServer } from "@/actions/playTextToAudio";
 
-export async function playTextToSpeech(text) {
+export async function playTextToSpeech(text,useLipSync) {
   try {
 
-    const {audioContent, lipSyncData} = await playTextToSpeechServer(text);
+    const {audioContent, lipSyncData} = await playTextToSpeechServer(text,useLipSync);
 
     if (!audioContent) {
       throw new Error("No audio content received");

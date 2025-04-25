@@ -1,9 +1,9 @@
 "use client";
-import React, { memo, useMemo, useEffect, useRef, useState } from 'react'
+import React, { memo, useMemo, useEffect, useRef, useState, use } from 'react'
 import { useFrame, useGraph } from '@react-three/fiber'
 import { useAnimations, useFBX, useGLTF } from "@react-three/drei";
 import { useClonedGLTF } from './ClonedGLTF';
-
+import * as THREE from "three";
 
 const corresponding = {
   A: "viseme_PP",
@@ -19,8 +19,8 @@ const corresponding = {
 
 export const Avatar = memo((props)=>{
   
-
-  const { glb , lipSyncData , isSpeaking , isThinking , audio } = props;
+  const morphTargetSmoothing = 0.5;
+  const { glb , lipSyncData , isSpeaking , isThinking , audio, useLipSync } = props;
 
   const clone = useClonedGLTF(glb);
   const { nodes, materials } = useGraph(clone)
@@ -38,18 +38,29 @@ export const Avatar = memo((props)=>{
   const { actions } = useAnimations(idleAnimation,groupRef);
 
   useFrame(()=>{
-    
-    
+
     Object.values(corresponding).forEach((value)=>{
       nodes.Wolf3D_Head.morphTargetInfluences[
         nodes.Wolf3D_Head.morphTargetDictionary[value]
-      ] = 0;
+      ] = THREE.MathUtils.lerp(
+        nodes.Wolf3D_Head.morphTargetInfluences[
+          nodes.Wolf3D_Head.morphTargetDictionary[value]
+        ],
+        0,
+        morphTargetSmoothing
+      );
       nodes.Wolf3D_Teeth.morphTargetInfluences[
         nodes.Wolf3D_Teeth.morphTargetDictionary[value]
-      ] = 0;
+      ] = THREE.MathUtils.lerp(
+        nodes.Wolf3D_Teeth.morphTargetInfluences[
+          nodes.Wolf3D_Teeth.morphTargetDictionary[value]
+        ],
+        0,
+        morphTargetSmoothing
+      );
     })
     
-    if(!isSpeaking){
+    if(!isSpeaking || !useLipSync){
       setAnimation('idle');
       return;
     }
@@ -64,10 +75,26 @@ export const Avatar = memo((props)=>{
       ){
         nodes.Wolf3D_Head.morphTargetInfluences[
           nodes.Wolf3D_Head.morphTargetDictionary[corresponding[mouthCue.value]]
-        ] = 1;
+        ] = THREE.MathUtils.lerp(
+          nodes.Wolf3D_Head.morphTargetInfluences[
+            nodes.Wolf3D_Head.morphTargetDictionary[
+              corresponding[mouthCue.value]
+            ]
+          ],
+          1,
+          morphTargetSmoothing
+        );
         nodes.Wolf3D_Teeth.morphTargetInfluences[
           nodes.Wolf3D_Teeth.morphTargetDictionary[corresponding[mouthCue.value]]
-        ] = 1;
+        ] = THREE.MathUtils.lerp(
+          nodes.Wolf3D_Teeth.morphTargetInfluences[
+            nodes.Wolf3D_Teeth.morphTargetDictionary[
+              corresponding[mouthCue.value]
+            ]
+          ],
+          1,
+          morphTargetSmoothing
+        );
 
         break;
       }
@@ -85,38 +112,39 @@ export const Avatar = memo((props)=>{
 }, [animation, actions]);
 
 
-// const visemeIndices = [
-//   nodes.Wolf3D_Head.morphTargetDictionary["viseme_aa"],
-//   nodes.Wolf3D_Head.morphTargetDictionary["viseme_O"],
-//   nodes.Wolf3D_Head.morphTargetDictionary["viseme_U"],
-//   nodes.Wolf3D_Head.morphTargetDictionary["viseme_E"],
-//   nodes.Wolf3D_Head.morphTargetDictionary["viseme_I"]
-// ];
+const visemeIndices = [
+  nodes.Wolf3D_Head.morphTargetDictionary["viseme_aa"],
+  nodes.Wolf3D_Head.morphTargetDictionary["viseme_O"],
+  nodes.Wolf3D_Head.morphTargetDictionary["viseme_U"],
+  nodes.Wolf3D_Head.morphTargetDictionary["viseme_E"],
+  nodes.Wolf3D_Head.morphTargetDictionary["viseme_I"]
+];
 
-// const currentVisemeIndex = useRef(0);
-// const visemeTimer = useRef(0);
+const currentVisemeIndex = useRef(0);
+const visemeTimer = useRef(0);
 
-// useFrame((_, delta) => {
-//   // Clear all visemes
-//   Object.values(nodes.Wolf3D_Head.morphTargetDictionary).forEach((index) => {
-//     nodes.Wolf3D_Head.morphTargetInfluences[index] = 0;
-//     nodes.Wolf3D_Teeth.morphTargetInfluences[index] = 0;
-//   });
+useFrame((_, delta) => {
+  if(useLipSync)return;
+  // Clear all visemes
+  Object.values(nodes.Wolf3D_Head.morphTargetDictionary).forEach((index) => {
+    nodes.Wolf3D_Head.morphTargetInfluences[index] = 0;
+    nodes.Wolf3D_Teeth.morphTargetInfluences[index] = 0;
+  });
 
-//   if (isSpeaking) {
-//     visemeTimer.current += delta;
+  if (isSpeaking) {
+    visemeTimer.current += delta;
 
-//     // Change viseme every ~100ms
-//     if (visemeTimer.current > 0.1) {
-//       currentVisemeIndex.current = (currentVisemeIndex.current + 1) % visemeIndices.length;
-//       visemeTimer.current = 0;
-//     }
+    // Change viseme every ~100ms
+    if (visemeTimer.current > 0.1) {
+      currentVisemeIndex.current = (currentVisemeIndex.current + 1) % visemeIndices.length;
+      visemeTimer.current = 0;
+    }
 
-//     const index = visemeIndices[currentVisemeIndex.current];
-//     nodes.Wolf3D_Head.morphTargetInfluences[index] = 0.5;
-//     nodes.Wolf3D_Teeth.morphTargetInfluences[index] = 0.5;
-//   }
-// });
+    const index = visemeIndices[currentVisemeIndex.current];
+    nodes.Wolf3D_Head.morphTargetInfluences[index] = 0.5;
+    nodes.Wolf3D_Teeth.morphTargetInfluences[index] = 0.5;
+  }
+});
 
 
 useEffect(() => {

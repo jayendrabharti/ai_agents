@@ -4,7 +4,7 @@ import { GenerateLipSync } from '@/rhubarb/GenerateLipSync';
 import fs from 'fs/promises';
 import path from 'path';
 
-export async function playTextToSpeechServer(text) {
+export async function playTextToSpeechServer(text,useLipSync) {
     const api_key = process.env.GOOGLE_TTS_API_KEY;
     const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${api_key}`;
 
@@ -38,7 +38,8 @@ export async function playTextToSpeechServer(text) {
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, audioBuffer);
 
-    const lipSyncData = await GenerateLipSync();
+
+    const lipSyncData = useLipSync? await GenerateLipSync() : null;
 
 
     return { audioContent: audioBase64, lipSyncData: lipSyncData };
