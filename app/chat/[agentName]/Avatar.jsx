@@ -124,7 +124,7 @@ const currentVisemeIndex = useRef(0);
 const visemeTimer = useRef(0);
 
 useFrame((_, delta) => {
-  if(useLipSync)return;
+  if(useLipSync && lipSyncData)return;
   // Clear all visemes
   Object.values(nodes.Wolf3D_Head.morphTargetDictionary).forEach((index) => {
     nodes.Wolf3D_Head.morphTargetInfluences[index] = 0;
