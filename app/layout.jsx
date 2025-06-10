@@ -10,19 +10,21 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body 
+      <body
         className={`dark grid grid-rows-[auto_1fr] h-[100dvh] w-full bg-zinc-950 text-white min-h-screen bg-gradient-to-r from-slate-500 to-slate-800`}
       >
-      
-      <NextAuthSessionProviders>
+        <div className="w-full h-dvh flex-col flex justify-center items-center">
+          <span className="text-6xl font-extrabold">Under Maintenance</span>
+          <span className="mt-10">Will be back soon</span>
+        </div>
+        {/* <NextAuthSessionProviders>
         
         <Navbar/>
         <div className="h-full max-h-full overflow-y-scroll">
           {children}
         </div>
         
-      </NextAuthSessionProviders>
-      
+      </NextAuthSessionProviders> */}
       </body>
     </html>
   );
